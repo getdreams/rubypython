@@ -80,9 +80,17 @@ module RubyPython::Conversion
     pDict
   end
 
-  # Convert a Ruby Integer to a \Python Long. Returns an FFI::Pointer to a
+  # Convert a Ruby Fixnum to a \Python Int. Returns an FFI::Pointer to a
+  # PyIntObject.
+  def self.rtopFixnum(rNum)
+    num = RubyPython::Python.PyInt_FromLong(rNum)
+    raise ConversionError.new "Failed to convert #{rNum}" if num.null?
+    num
+  end
+
+  # Convert a Ruby Bignum to a \Python Long. Returns an FFI::Pointer to a
   # PyLongObject.
-  def self.rtopInteger(rNum)
+  def self.rtopBigNum(rNum)
     num = RubyPython::Python.PyLong_FromLong(rNum)
     raise ConversionError.new "Failed to convert #{rNum}" if num.null?
     num
@@ -166,8 +174,10 @@ module RubyPython::Conversion
       end
     when Hash
       rtopHash rObj
-    when Integer
-      rtopInteger rObj
+    when Fixnum
+      rtopFixnum rObj
+    when Bignum
+      rtopBignum rObj
     when Float
       rtopFloat rObj
     when true
